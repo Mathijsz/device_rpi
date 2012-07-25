@@ -5,14 +5,12 @@
 
 VENDOR_FILE="../../../vendor/cyanogen/products/cyanogen_rpi.mk"
 ARM_ARCH_FILE="../../../build/core/combo/arch/arm/armv6-vfp.mk"
-ARM_ARCH_MD5="2dc1eb2a25d653a0b8154d8d0b13c245"
+ARM_ARCH_MD5=`md5sum armv6-vfp.mk.dummy`
 ARM_ARCH_LOCAL_MD5=`md5sum $ARM_ARCH_FILE`
 
 if [ ! -f $VENDOR_FILE ]; then
-
    echo "Vendor file does not exist, copying..."
    cp cyanogen_rpi.mk.dummy $VENDOR_FILE
-
 fi
 
 
