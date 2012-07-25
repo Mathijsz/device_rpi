@@ -2,6 +2,7 @@
 #
 # script doing some things to your source tree
 #
+# TODO: - make sure the script adds cyanogen_rpi.mk to AndroidProducts.mk too (is this even necessary?)
 
 VENDOR_FILE="../../../vendor/cyanogen/products/cyanogen_rpi.mk"
 ARM_ARCH_FILE="../../../build/core/combo/arch/arm/armv6-vfp.mk"
