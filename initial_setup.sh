@@ -3,11 +3,9 @@
 # script doing some things to your source tree
 #
 # TODO: - make sure the script adds cyanogen_rpi.mk to AndroidProducts.mk too (is this even necessary?)
+#
+# Warning: ugly bash script ahead
 
-VENDOR_FILE="../../../vendor/cyanogen/products/cyanogen_rpi.mk"
-ARM_ARCH_FILE="../../../build/core/combo/arch/arm/armv6-vfp.mk"
-ARM_ARCH_MD5=`md5sum armv6-vfp.mk.dummy | awk '{ print $1 }'`
-ARM_ARCH_LOCAL_MD5=`md5sum $ARM_ARCH_FILE | awk '{ print $1 }'`
 DIR=`dirname $0`
 WORKDIR=`pwd`
 
@@ -15,6 +13,11 @@ if [[ $DIR != "." && $WORKDIR != $DIR ]]; then
    echo "You will need to run this script from its directory"
    exit
 fi
+
+VENDOR_FILE="../../../vendor/cyanogen/products/cyanogen_rpi.mk"
+ARM_ARCH_FILE="../../../build/core/combo/arch/arm/armv6-vfp.mk"
+ARM_ARCH_MD5=`md5sum armv6-vfp.mk.dummy | awk '{ print $1 }'`
+ARM_ARCH_LOCAL_MD5=`md5sum $ARM_ARCH_FILE | awk '{ print $1 }'`
 
 if [[ ! -z $1  &&  $1 = 'restore' ]]; then
    if [ -f "$ARM_ARCH_FILE".bak ]; then
