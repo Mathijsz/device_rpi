@@ -2,8 +2,8 @@
 #
 # script doing some things to your source tree
 #
-# TODO: - fix bionic shizzle too (oh, the hackiness)
-#       - improve vendorsetup.sh part
+# TODO: - improve vendorsetup.sh part
+#       
 # Warning: ugly bash script ahead
 
 DIR=`dirname $0`
@@ -17,6 +17,10 @@ fi
 VENDOR_FILE="../../../vendor/cyanogen/products/cyanogen_rpi.mk"
 ARM_ARCH_FILE="../../../build/core/combo/arch/arm/armv6-vfp.mk"
 ARM_ARCH_MD5=`md5sum armv6-vfp.mk.dummy | awk '{ print $1 }'`
+
+if [ ! -d "../../../vendor/cyanogen/proprietary" ]; then
+   ../../../vendor/cyanogen/get-rommanager
+fi
 
 if [ -f $ARM_ARCH_FILE ]; then
    ARM_ARCH_LOCAL_MD5=`md5sum $ARM_ARCH_FILE | awk '{ print $1 }'`
@@ -34,7 +38,7 @@ fi
 
 if [[ ! -z $1  &&  $1 = 'restore' ]]; then
    if [ -f "$ARM_ARCH_FILE".bak ]; then
-      rm $VENDOR_FILE && cp "$ARM_ARCH_FILE".bak $ARM_ARCH_FILE && echo "Backup successfully restored"
+      rm $VENDOR_FILE && cp "$ARM_ARCH_FILE".bak $ARM_ARCH_FILE && cp "BIONIC_FIX_DEST".bak "BIONIC_FIX_DEST" && echo "Backup successfully restored"
       exit
    else
       echo "No backups present, nothing to restore."
@@ -55,8 +59,7 @@ fi
 
 if [[ -f $ARM_ARCH_FILE && $ARM_ARCH_LOCAL_MD5 != $ARM_ARCH_MD5 ]]; then
    echo "armv6-vfp.mk differs from the needed one, correcting..."
-   mv $ARM_ARCH_FILE "$ARM_ARCH_FILE".bak
-   cp armv6-vfp.mk.dummy "$ARM_ARCH_FILE"
+   mv $ARM_ARCH_FILE "$ARM_ARCH_FILE".bak && cp armv6-vfp.mk.dummy "$ARM_ARCH_FILE" && echo "Success."
 else
    echo "armv6-vfp.mk doesn't need any changes."
 fi
@@ -72,3 +75,15 @@ else
    echo $LINE >> $VENDSETUP
 fi
 
+# we really need to make a patch for this
+BIONIC_FIX_DEST="../../../bionic/libc/private/bionic_tls.h"
+BIONIC_FIX_DEST_MD5=`md5sum $BIONIC_FIX_DEST | awk '{ print $1 }'`
+BIONIC_FIX_DUMMY="bionic_tls.h.dummy"
+BIONIC_FIX_DUMMY_MD5=`md5sum bionic_tls.h.dummy | awk '{print $1 }'`
+
+if [ $BIONIC_FIX_DEST_MD5 = $BIONIC_FIX_DUMMY_MD5 ]; then
+   echo "No change needed for bionic_tls.h"
+else
+   echo "Replacing bionic_tls.h with a fixed one"
+   mv $BIONIC_FIX_DEST "$BIONIC_FIX_DEST".bak && cp $BIONIC_FIX_DUMMY $BIONIC_FIX_DEST && echo "Success."
+fi
