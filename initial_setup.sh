@@ -2,8 +2,8 @@
 #
 # script doing some things to your source tree
 #
-# TODO: - make sure the script adds cyanogen_rpi.mk to AndroidProducts.mk too (is this even necessary?)
-#
+# TODO: - make sure the script adds cyanogen_rpi.mk to AndroidProducts.mk too (is this even necessary? apparently not)
+#       - make the script add line to vendorsetup.sh
 # Warning: ugly bash script ahead
 
 DIR=`dirname $0`
@@ -17,7 +17,20 @@ fi
 VENDOR_FILE="../../../vendor/cyanogen/products/cyanogen_rpi.mk"
 ARM_ARCH_FILE="../../../build/core/combo/arch/arm/armv6-vfp.mk"
 ARM_ARCH_MD5=`md5sum armv6-vfp.mk.dummy | awk '{ print $1 }'`
-ARM_ARCH_LOCAL_MD5=`md5sum $ARM_ARCH_FILE | awk '{ print $1 }'`
+
+if [ -f $ARM_ARCH_FILE ]; then
+   ARM_ARCH_LOCAL_MD5=`md5sum $ARM_ARCH_FILE | awk '{ print $1 }'`
+else
+   echo "Local armv6-vfp.mk file does not exist at all"
+   echo "Trying to restore backup..."
+   cp "$ARM_ARCH_FILE".bak $ARM_ARCH_FILE && echo "... successfully did that."
+   if [ $? -ne 0 ]; then
+      echo "... failed to do so."
+      echo "Copying the new one for you"
+      cp armv6-vfp.mk.dummy $ARM_ARCH_FILE && echo "done, please re-run the script."
+      exit
+   fi
+fi
 
 if [[ ! -z $1  &&  $1 = 'restore' ]]; then
    if [ -f "$ARM_ARCH_FILE".bak ]; then
@@ -40,10 +53,10 @@ else
    echo "Vendor file already exists."
 fi
 
-if [ $ARM_ARCH_LOCAL_MD5 != $ARM_ARCH_MD5 ]; then
+if [[ -f $ARM_ARCH_FILE && $ARM_ARCH_LOCAL_MD5 != $ARM_ARCH_MD5 ]]; then
    echo "armv6-vfp.mk differs from the needed one, correcting..."
    mv $ARM_ARCH_FILE "$ARM_ARCH_FILE".bak
-   cp armv6-vfp.mk.dummy $ARCH_ARM_FILE
+   cp armv6-vfp.mk.dummy "$ARM_ARCH_FILE"
 else
    echo "armv6-vfp.mk doesn't need any changes."
 fi
