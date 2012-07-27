@@ -2,8 +2,8 @@
 #
 # script doing some things to your source tree
 #
-# TODO: - make sure the script adds cyanogen_rpi.mk to AndroidProducts.mk too (is this even necessary? apparently not)
-#       - make the script add line to vendorsetup.sh
+# TODO: - fix bionic shizzle too (oh, the hackiness)
+#       - improve vendorsetup.sh part
 # Warning: ugly bash script ahead
 
 DIR=`dirname $0`
@@ -60,3 +60,15 @@ if [[ -f $ARM_ARCH_FILE && $ARM_ARCH_LOCAL_MD5 != $ARM_ARCH_MD5 ]]; then
 else
    echo "armv6-vfp.mk doesn't need any changes."
 fi
+
+LINE="add_lunch_combo cyanogen_rpi-eng"
+VENDSETUP="../../../vendor/cyanogen/vendorsetup.sh"
+VENDCHECK=`cat $VENDSETUP | grep cyanogen_rpi-eng | wc -l`
+
+if [[ $VENDCHECK -gt 0 ]]; then
+   echo "vendorsetup.sh doesn't need any changes."
+else
+   echo "Adding needed line to vendorsetup.sh"
+   echo $LINE >> $VENDSETUP
+fi
+
